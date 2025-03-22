@@ -9,6 +9,8 @@ const sendMessage = async (req, res) => {
     const { id } = req.user;
 
     try {
+        const userMessage = new Message({ userId: id, sender: "user", message: chatInput });
+        await userMessage.save();
         const response = await axios.post(BOT_WEBHOOK, {
             chatInput: 'Tạo bài viết về bút bi chì',
           }, {
@@ -18,8 +20,7 @@ const sendMessage = async (req, res) => {
           });
 
         if (response.data.output) {
-            const userMessage = new Message({ userId: id, sender: "user", message: chatInput });
-            await userMessage.save();
+
 
             const botMessage = new Message({ userId: id, sender: "bot", message: response.data.output });
             await botMessage.save();
