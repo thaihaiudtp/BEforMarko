@@ -39,7 +39,7 @@ passport.deserializeUser((id, done) => {
             });
           await existingUser.save();
         }
-        const token = genAccessToken(profile.emails[0].value, profile.displayName);
+        const token = genAccessToken(profile.emails[0].value, profile.displayName, existingUser._id);
         
         return done(null, { user: existingUser, token });
         } catch (error) {
