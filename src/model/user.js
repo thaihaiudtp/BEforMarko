@@ -24,6 +24,11 @@ const userSchema = new Schema({
         type: Number,
         default: 0,
     },
+    image: {
+        type: String,
+        required: true,
+        default: "link"
+    },
     product: [{
         product: {
             type: Schema.Types.ObjectId,
@@ -42,3 +47,6 @@ userSchema.pre('save', async function (next) {
     next();
 })
 module.exports = mongoose.model('User', userSchema);
+
+
+
