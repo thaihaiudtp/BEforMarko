@@ -1,11 +1,12 @@
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 dotenv.config();
-const genAccessToken = (email, fullname) => {
+const genAccessToken = (email, fullname, id) => {
     try {
         return jwt.sign({
             email: email,
             fullname: fullname,
+            id: id
         },
         process.env.SECRET_JWT,
         {
