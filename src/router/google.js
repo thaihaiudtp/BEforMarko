@@ -14,7 +14,7 @@ router.get(
         return res.status(401).json({ message: "Xác thực thất bại" });
       }
       const { user, token } = req.user;
-      res.redirect(`http://localhost:8080/login?token=${token}`);
+      res.redirect(`https://react-image-symphony.vercel.app/login?token=${token}`);
     }
 )
 
