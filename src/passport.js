@@ -18,7 +18,7 @@ passport.deserializeUser((id, done) => {
     new GoogleStrategy({
         clientID: process.env.Client_ID,
         clientSecret: process.env.Client_Secret,
-        callbackURL: 'http://localhost:7021/auth/google/callback'
+        callbackURL: 'https://50f8ddd6-2f59-45d5-840d-5ee1daf6afb0.us-east-1.cloud.genez.io/auth/google/callback'
     }, async (accessToken, refreshToken, profile, done) => {  
         if (!profile) {
             console.log("Profile is undefined!");  
