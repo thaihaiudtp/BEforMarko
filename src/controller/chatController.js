@@ -25,13 +25,16 @@ const sendMessage = async (req, res) => {
             const botMessage = new Message({ userId: id, sender: "bot", message: response.data.output });
             await botMessage.save();
 
-            return res.json({ userMessage, botMessage });
+            return res.json({botMessage});
         }
-
+        const botMessage = new Message({ userId: id, sender: "bot", message: "Bot không phản hồi"});
+        await botMessage.save();
         return res.status(500).json({ error: "Bot không phản hồi" });
 
     } catch (error) {
         console.error("Lỗi khi gửi tin nhắn:", error);
+        const botMessage = new Message({ userId: id, sender: "bot", message: error});
+        await botMessage.save();
         res.status(500).json({ error: "Không thể xử lý yêu cầu" });
     }
 };
