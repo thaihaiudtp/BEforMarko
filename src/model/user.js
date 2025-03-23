@@ -4,13 +4,20 @@ const bcrypt = require('bcrypt');
 const userSchema = new Schema({
     email: {
         type: String,
-        required: true,
+        required: function() {
+            return !this.twitterId;  // Chỉ required nếu không có Twitter/Google
+        },
         unique: true
     },
     googleId: {
         type: String,
         unique: true,
         sparse: true,
+    },
+    twitterId: { 
+        type: String, 
+        unique: true,
+        sparse: true
     },
     password: {
         type: String,

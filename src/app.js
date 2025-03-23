@@ -4,6 +4,7 @@ const cors = require('cors');
 const passport = require('./passport');
 const router = require('./router/index');
 require('dotenv').config();
+
 const connect = require('./db');
 const app = express();
 app.use(cors());
