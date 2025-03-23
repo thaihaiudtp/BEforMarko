@@ -5,9 +5,11 @@ const BOT_WEBHOOK = process.env.BOT_WEBHOOK || "https://precisely-national-unico
 
 const sendMessage = async (req, res) => {
     console.log("BOT_WEBHOOK:", BOT_WEBHOOK);
+    console.log("req.body nhận được:", req.body); // 👀 Xem toàn bộ req.body
+    console.log("chatInput trước khi xử lý:", req.body.chatInput);
     const { chatInput } = req.body;
     const { id } = req.user;
-
+    console.log(chatInput)
     try {
         const userMessage = new Message({ userId: id, sender: "user", message: chatInput });
         await userMessage.save();
