@@ -49,7 +49,7 @@ const Login = async (req, res) => {
                 message: 'Invalid password',
             })
         }
-        const token = genAccessToken(existEmail.email, existEmail.fullname);
+        const token = genAccessToken(existEmail.email, existEmail.fullname, existEmail._id);
         return res.status(200).json({
             success: true,
             message: 'Login successfully',
