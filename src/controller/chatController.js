@@ -12,7 +12,7 @@ const sendMessage = async (req, res) => {
         const userMessage = new Message({ userId: id, sender: "user", message: chatInput });
         await userMessage.save();
         const response = await axios.post(BOT_WEBHOOK, {
-            chatInput: 'Tạo bài viết về bút bi chì',
+            chatInput: chatInput,
           }, {
             headers: {
               'Content-Type': 'application/json',  
