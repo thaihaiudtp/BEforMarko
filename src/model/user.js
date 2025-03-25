@@ -31,10 +31,9 @@ const userSchema = new Schema({
         type: Number,
         default: 0,
     },
-    image: {
-        type: String,
-        required: true,
-        default: "link"
+    images: { 
+        type: [String],  // Lưu danh sách URL ảnh
+        default: ["link"] // Giá trị mặc định là một mảng chứa một chuỗi "link"
     },
     product: [{
         product: {
