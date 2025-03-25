@@ -1,15 +1,19 @@
 const User = require('../model/user');
-
+require('dotenv').config();
 const path = require('path');
 const {google} = require('googleapis');
 const fs = require('fs');
 const stream = require('stream');
-const KEYFILEPATH = path.join(__dirname, "image.json");
-const scope = ["https://www.googleapis.com/auth/drive"];
+
 const auth = new google.auth.GoogleAuth({
-    keyFile: KEYFILEPATH,
-    scopes: scope,
-  });
+    credentials: {
+        type: "service_account",
+        project_id: process.env.GOOGLE_PROJECT_ID,
+        private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        client_email: process.env.GOOGLE_CLIENT_EMAIL,
+    },
+    scopes: ["https://www.googleapis.com/auth/drive"],
+});
 const uploadFileToDrive = async (file) => {
     const drive = google.drive({ version: 'v3', auth });
     
@@ -17,7 +21,7 @@ const uploadFileToDrive = async (file) => {
     bufferStream.end(file.buffer);
     const fileMetadata = {
         name: file.originalname,
-        parents: ['1Ma9p_DBOT8IfXO5gGoTR2_s9nfA0FxPO'] // Thay bằng ID thư mục Drive
+        parents: [process.env.GOOGLE_FOLDER_ID]// Thay bằng ID thư mục Drive
     };
 
     const media = {
@@ -77,7 +81,7 @@ const getImage = async (req, res) => {
         const user = await User.findById(id).select("images"); 
 
         if (!user) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404 ).json({ message: "User not found" });
         }
 
         return res.status(200).json({ images: user.images });
