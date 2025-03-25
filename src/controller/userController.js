@@ -1,17 +1,11 @@
 const User = require('../model/user');
 require('dotenv').config();
-const path = require('path');
 const {google} = require('googleapis');
 const fs = require('fs');
 const stream = require('stream');
 
 const auth = new google.auth.GoogleAuth({
-    credentials: {
-        type: "service_account",
-        project_id: process.env.GOOGLE_PROJECT_ID,
-        private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-        client_email: process.env.GOOGLE_CLIENT_EMAIL,
-    },
+    credentials: JSON.parse(process.env.GOOGLE_CREDENTIALS),
     scopes: ["https://www.googleapis.com/auth/drive"],
 });
 const uploadFileToDrive = async (file) => {
