@@ -3,16 +3,18 @@ const User = require('../model/user');
 const path = require('path');
 const {google} = require('googleapis');
 const fs = require('fs');
-
+const stream = require('stream');
 const KEYFILEPATH = path.join(__dirname, "image.json");
 const scope = ["https://www.googleapis.com/auth/drive"];
 const auth = new google.auth.GoogleAuth({
     keyFile: KEYFILEPATH,
     scopes: scope,
   });
-  const uploadFileToDrive = async (file) => {
+const uploadFileToDrive = async (file) => {
     const drive = google.drive({ version: 'v3', auth });
-
+    
+    const bufferStream = new stream.PassThrough(); // Tạo một stream từ buffer
+    bufferStream.end(file.buffer);
     const fileMetadata = {
         name: file.originalname,
         parents: ['1Ma9p_DBOT8IfXO5gGoTR2_s9nfA0FxPO'] // Thay bằng ID thư mục Drive
@@ -20,7 +22,7 @@ const auth = new google.auth.GoogleAuth({
 
     const media = {
         mimeType: file.mimetype,
-        body: fs.createReadStream(file.path),
+        body: bufferStream,
     };
 
     const response = await drive.files.create({
