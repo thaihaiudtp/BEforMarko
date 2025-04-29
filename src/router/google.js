@@ -14,7 +14,7 @@ router.get(
         return res.status(401).json({ message: "Xác thực thất bại" });
       }
       const { user, token } = req.user;
-      res.redirect(`https://react-image-symphony.app.genez.io/login?token=${token}`);
+      res.redirect(`http://localhost:8080/auth?token=${token}`);
     }
 )
 

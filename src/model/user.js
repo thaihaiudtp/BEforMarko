@@ -5,7 +5,7 @@ const userSchema = new Schema({
     email: {
         type: String,
         required: function() {
-            return !this.twitterId;  // Chỉ required nếu không có Twitter/Google
+            return !this.twitterId;  
         },
         unique: true
     },
@@ -32,8 +32,8 @@ const userSchema = new Schema({
         default: 0,
     },
     images: { 
-        type: [String],  // Lưu danh sách URL ảnh
-        default: ["link"] // Giá trị mặc định là một mảng chứa một chuỗi "link"
+        type: [String],
+        required: false
     },
     product: [{
         product: {

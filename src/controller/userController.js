@@ -1,72 +1,32 @@
 const User = require('../model/user');
+const bcrypt = require('bcrypt');
 require('dotenv').config();
-const {google} = require('googleapis');
-const fs = require('fs');
-const stream = require('stream');
-
-const auth = new google.auth.GoogleAuth({
-    credentials: JSON.parse(process.env.GOOGLE_CREDENTIALS),
-    scopes: ["https://www.googleapis.com/auth/drive"],
-});
-const uploadFileToDrive = async (file) => {
-    const drive = google.drive({ version: 'v3', auth });
-    
-    const bufferStream = new stream.PassThrough(); // Tạo một stream từ buffer
-    bufferStream.end(file.buffer);
-    const fileMetadata = {
-        name: file.originalname,
-        parents: [process.env.GOOGLE_FOLDER_ID]// Thay bằng ID thư mục Drive
-    };
-
-    const media = {
-        mimeType: file.mimetype,
-        body: bufferStream,
-    };
-
-    const response = await drive.files.create({
-        resource: fileMetadata,
-        media: media,
-        fields: 'id',
-    });
-    await drive.permissions.create({
-        fileId: response.data.id,
-        requestBody: {
-            role: 'reader',
-            type: 'anyone',
-        },
-    });
-
-    return `https://drive.google.com/uc?id=${response.data.id}`;
-};
 
 const uploadImage = async (req, res) => {
     try {
-        console.log("File received:", req.file); 
-        console.log("Body received:", req.body);
-
-        if (!req.file) {
-            return res.status(400).json({ message: "No file uploaded" });
+        const userId = req.user.id; 
+        if(!req.file){
+            return res.status(400).json({ success: false, message: 'No file uploaded'})
         }
-        const userId = req.user?.id;
         if (!userId) {
-            return res.status(401).json({ message: "Unauthorized" });
+            return res.status(400).json({ success: false, message: 'User ID not found' });
         }
-        const imageUrl = await uploadFileToDrive(req.file);
-        const user = await User.findByIdAndUpdate(
+        const imagePath = req.file.path; 
+        await User.findByIdAndUpdate(
             userId,
-            { $push: { images: imageUrl } }, // Thêm ảnh mới vào mảng
+            { $push: { images: imagePath } },
             { new: true }
         );
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
-        return res.status(200).json({ message: "Upload successful", imageUrl, images: user.images });
-
+        res.status(200).json({
+            success: true,
+            message: 'Image uploaded and saved',
+            imageUrl: imagePath,
+        });
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: "Internal Server Error" });
+        console.error('Upload error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
     }
-};
+}
 
 
 const getImage = async (req, res) => {
@@ -84,5 +44,54 @@ const getImage = async (req, res) => {
         return res.status(500).json({ message: "Internal Server Error" });
     }
 };
-
-module.exports = {uploadImage, getImage}
+const getCurrentUser = async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await User.findById(userId).select("-password -images -product");
+      if (!user) return res.status(404).json({ message: "User not found" });
+  
+      res.json(user);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Server error" });
+    }
+  };
+  const updateFullname = async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const { fullname } = req.body;
+  
+      const user = await User.findByIdAndUpdate(
+        userId,
+        { fullname },
+        { new: true, runValidators: true }
+      ).select("-password");
+  
+      res.json(user);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Server error" });
+    }
+  };
+  const changePassword = async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const { oldPassword, newPassword } = req.body;
+  
+      const user = await User.findById(userId);
+      if (!user) return res.status(404).json({ message: "User not found" });
+  
+      const isMatch = await bcrypt.compare(oldPassword, user.password);
+      if (!isMatch)
+        return res.status(400).json({ message: "Mật khẩu cũ không đúng" });
+  
+      user.password = newPassword;
+      await user.save();
+  
+      res.json({ message: "Đổi mật khẩu thành công" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Server error" });
+    }
+  };
+module.exports = {uploadImage, getImage, getCurrentUser, updateFullname, changePassword}
