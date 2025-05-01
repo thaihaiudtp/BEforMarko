@@ -8,6 +8,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      # Kiểm tra giá trị SSH_PRIVATE_KEY
+      - name: Debug SSH key
+        run: echo "${{ secrets.SSH_PRIVATE_KEY }}"
+      
+      # Các bước deploy khác
       - name: Deploy using SSH
         uses: appleboy/ssh-action@master
         with:
