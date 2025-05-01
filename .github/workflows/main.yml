@@ -8,20 +8,19 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - name: Deploy using ssh
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        password: ${{ secrets.PASSWORD }}
-        port: 22
-        script: |
-          cd BEforMarko/
-          git fetch origin
-          git checkout production
-          git pull
-          docker build -t markobe .
-          docker stop markobe-container || true
-          docker rm marko-container || true
-          docker run -d --name marko-container -p 7021:7021 markobe
-            
+      - name: Deploy using SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+            cd BEforMarko/
+            git fetch origin
+            git checkout production
+            git pull
+            docker build -t markobe .
+            docker stop markobe-container || true
+            docker rm markobe-container || true
+            docker run -d --name markobe-container -p 7021:7021 markobe
