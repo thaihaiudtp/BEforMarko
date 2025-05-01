@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Expose cổng 3000 (ExpressJS thường chạy ở cổng này)
-EXPOSE 3000
+EXPOSE 7021
 
 # Lệnh chạy khi container khởi động
 CMD ["npm", "start"]
