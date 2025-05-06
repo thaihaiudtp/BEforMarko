@@ -14,7 +14,7 @@ router.get(
         return res.status(401).json({ message: "Xác thực thất bại" });
       }
       const { user, token } = req.user;
-      res.redirect(`https://flowly-ai-chat.vercel.app/auth?token=${token}`);
+      res.redirect(`https://flowly-ai-chat.app.genez.io/auth?token=${token}`);
     }
 )
 
