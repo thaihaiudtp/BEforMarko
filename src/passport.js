@@ -9,7 +9,7 @@ passport.use(
     new GoogleStrategy({
         clientID: process.env.Client_ID,
         clientSecret: process.env.Client_Secret,
-        callbackURL: 'http://54.87.230.251:7021/auth/google/callback'
+        callbackURL: 'https://api.thaihadtp.id.vn/auth/google/callback'
     }, async (accessToken, refreshToken, profile, done) => {  
         if (!profile) {
             console.log("Profile is undefined!");  
