@@ -1,6 +1,7 @@
 const User = require('../model/user');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
+const Workflow = require('../model/workflow'); // Import Workflow model
 
 const uploadImage = async (req, res) => {
     try {
@@ -94,4 +95,54 @@ const getCurrentUser = async (req, res) => {
       res.status(500).json({ message: "Server error" });
     }
   };
-module.exports = {uploadImage, getImage, getCurrentUser, updateFullname, changePassword}
+
+const renameWorkflow = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { workflowId } = req.params;
+        const { newName } = req.body;
+
+        const workflow = await Workflow.findOneAndUpdate(
+            { _id: workflowId, userId },
+            { name: newName },
+            { new: true, runValidators: true }
+        );
+
+        if (!workflow) {
+            return res.status(404).json({ message: "Workflow not found or unauthorized" });
+        }
+
+        res.status(200).json({ message: "Workflow renamed successfully", workflow });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+const deleteWorkflow = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { workflowId } = req.params;
+
+        const workflow = await Workflow.findOneAndDelete({ _id: workflowId, userId });
+
+        if (!workflow) {
+            return res.status(404).json({ message: "Workflow not found or unauthorized" });
+        }
+
+        res.status(200).json({ message: "Workflow deleted successfully" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+module.exports = {
+    uploadImage,
+    getImage,
+    getCurrentUser,
+    updateFullname,
+    changePassword,
+    renameWorkflow,
+    deleteWorkflow
+};
