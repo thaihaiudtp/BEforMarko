@@ -66,6 +66,7 @@ const sendMessage = async (req, res) => {
       await userMessage.save();
 
       const response = await axios.post(BOT_WEBHOOK, {
+          sessionId: workflowId,
           chatInput: chatInput,
       }, {
           headers: { 'Content-Type': 'application/json' }
