@@ -6,10 +6,15 @@ const MessageSchema = new Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     sender: { type: String, enum: ["user", "bot"], required: true },
     message: { type: String, required: true },
+    observations: {
+      type: Map,
+      of: Schema.Types.Mixed,
+      default: {}
+    },
+    type: { type: String, default: null, required: false }
   }, {
     timestamps: true
   });
   
   
   module.exports = mongoose.model("Message", MessageSchema);
-  

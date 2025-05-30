@@ -1,4 +1,5 @@
 const User = require('../model/user');
+const Message = require('../model/message');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
 const Workflow = require('../model/workflow'); // Import Workflow model
@@ -136,7 +137,24 @@ const deleteWorkflow = async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 };
-
+const getObservatios = async (req, res) => {
+  try {
+    const {id} = req.user;
+    const observations = await Message.find({ user: id, sender: "bot" })
+      .select("observations")
+    if (!observations || observations.length === 0) {
+      return res.status(404).json({ message: "No observations found for this user" });
+    }
+    const allObservations = observations.map(obs => obs.observations);
+    res.status(200).json({
+      observations: allObservations,
+      message: 'Lấy danh sách quan sát thành công',
+    });
+  } catch (error) {
+    console.error('Error fetching observations:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+}
 module.exports = {
     uploadImage,
     getImage,
@@ -144,5 +162,6 @@ module.exports = {
     updateFullname,
     changePassword,
     renameWorkflow,
-    deleteWorkflow
+    deleteWorkflow,
+    getObservatios
 };

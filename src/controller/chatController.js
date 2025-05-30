@@ -1,7 +1,7 @@
 const axios = require("axios");
 const Message = require("../model/message");
 require("dotenv").config();
-const BOT_WEBHOOK = process.env.BOT_WEBHOOK || "https://precisely-national-unicorn.ngrok-free.app/webhook/39f4b370-93dd-43f5-b7f6-220dc9cd041c/chat"
+const BOT_WEBHOOK = process.env.BOT_WEBHOOK 
 const BOT_WEBHOOK_IMAGE = process.env.BOT_WEBHOOK_IMAGE
 const Workflow = require('../model/workflow');
 
@@ -71,17 +71,32 @@ const sendMessage = async (req, res) => {
       }, {
           headers: { 'Content-Type': 'application/json' }
       });
+
       const botContent = response?.data?.output || "Bot không phản hồi";
+      // Extract all observation_* fields
+      const observations = {};
+      if (response && response.data) {
+        Object.keys(response.data).forEach(key => {
+          if (key.startsWith('observation_')) {
+            observations[key] = response.data[key]; // giữ nguyên kiểu dữ liệu
+          }
+        });
+      }
+      const imageUrl = response?.data?.url || null;
+      const type = response?.data?.type 
       const botMessage = new Message({
           user: id,
           workflow: workflowId,
           sender: "bot",
-          message: botContent
+          message: botContent,
+          observations: observations,
+          type: type
       });
       await botMessage.save();
 
       if (response?.data?.output) {
-          return res.json({ botMessage });
+          // Return botMessage and observations
+          return res.json({ botMessage});
       } else {
           return res.status(500).json({ error: "Bot không phản hồi" });
       }
