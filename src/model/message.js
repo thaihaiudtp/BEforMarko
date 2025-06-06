@@ -6,6 +6,7 @@ const MessageSchema = new Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     sender: { type: String, enum: ["user", "bot"], required: true },
     message: { type: String, required: true },
+    url: { type: String, default: null, required: false },
     observations: {
       type: Map,
       of: Schema.Types.Mixed,
