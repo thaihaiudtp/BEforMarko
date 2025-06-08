@@ -53,13 +53,13 @@ const sendMessage = async (req, res) => {
   console.log("BOT_WEBHOOK:", BOT_WEBHOOK);
   console.log("req.body nhận được:", req.body); 
 
-  const { chatInput,url, workflowId } = req.body;
+  const { chatInput, urlImage, workflowId } = req.body;
   const { id  } = req.user;
 
   try {
       const userMessage = new Message({ 
           user: id, 
-          url: url,
+          url: urlImage || null,
           workflow: workflowId,
           sender: "user", 
           message: chatInput 
@@ -69,7 +69,6 @@ const sendMessage = async (req, res) => {
       const response = await axios.post(BOT_WEBHOOK, {
           sessionId: workflowId,
           chatInput: chatInput,
-          url: url,
       }, {
           headers: { 'Content-Type': 'application/json' }
       });
@@ -84,7 +83,6 @@ const sendMessage = async (req, res) => {
           }
         });
       }
-      const imageUrl = response?.data?.url || null;
       const type = response?.data?.type 
       const botMessage = new Message({
           user: id,
@@ -107,10 +105,9 @@ const sendMessage = async (req, res) => {
       console.error("Lỗi khi gửi tin nhắn:", error);
       const errorMessage = new Message({
           user: id,
-          url: url,
           workflow: workflowId,
           sender: "bot",
-          message: "Đã xảy ra lỗi trong quá trình xử lý."
+          message: error.message || "Đã xảy ra lỗi khi gửi tin nhắn",
       });
       await errorMessage.save();
 
