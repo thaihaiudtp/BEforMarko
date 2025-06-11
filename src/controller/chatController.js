@@ -41,6 +41,8 @@ const getWorkflowsByUser = async (req, res) => {
     }
 
     res.status(200).json({
+      success: true,
+      total: workflows.length,
       workflows: workflows,
       message: 'Lấy danh sách workflow thành công',
     });
@@ -127,8 +129,8 @@ const getChatHistory = async (req, res) => {
       }).sort({ timestamp: 1 });
 
       res.status(200).json({
-        messages: messages,
-        message: "ok"
+        data: messages,
+        success: true,
       });
   } catch (error) {
       console.error("Lỗi khi lấy lịch sử chat:", error);

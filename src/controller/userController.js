@@ -40,7 +40,10 @@ const getImage = async (req, res) => {
             return res.status(404 ).json({ message: "User not found" });
         }
 
-        return res.status(200).json({ images: user.images });
+        return res.status(200).json({ 
+          success: true,
+          images: user.images 
+        });
     } catch (error) {
         console.error("Error fetching images:", error);
         return res.status(500).json({ message: "Internal Server Error" });
@@ -124,7 +127,7 @@ const deleteWorkflow = async (req, res) => {
     try {
         const userId = req.user.id;
         const { workflowId } = req.params;
-
+        await Message.deleteMany({ workflow: workflowId, user: userId });
         const workflow = await Workflow.findOneAndDelete({ _id: workflowId, userId });
 
         if (!workflow) {
@@ -147,12 +150,16 @@ const getObservatios = async (req, res) => {
     }
     const allObservations = observations.map(obs => obs.observations);
     res.status(200).json({
+      success: true,
       observations: allObservations,
       message: 'Lấy danh sách quan sát thành công',
     });
   } catch (error) {
     console.error('Error fetching observations:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error' 
+    });
   }
 }
 module.exports = {
