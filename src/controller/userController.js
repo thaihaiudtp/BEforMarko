@@ -2,33 +2,60 @@ const User = require('../model/user');
 const Message = require('../model/message');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
+const path = require('path');
 const Workflow = require('../model/workflow'); // Import Workflow model
-
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+const s3 = new S3Client({
+    region: process.env.AWS_REGION,
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY,
+        secretAccessKey: process.env.AWS_SECRET_KEY,
+    },
+});
 const uploadImage = async (req, res) => {
     try {
-        const userId = req.user.id; 
-        if(!req.file){
-            return res.status(400).json({ success: false, message: 'No file uploaded'})
+        const userId = req.user.id;
+
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'No file uploaded' });
         }
         if (!userId) {
             return res.status(400).json({ success: false, message: 'User ID not found' });
         }
-        const imagePath = req.file.path; 
+
+        const file = req.file;
+        const fileExt = path.extname(file.originalname);
+        const key = `users/${userId}/${Date.now()}${fileExt}`;
+
+        const uploadParams = {
+            Bucket: process.env.BUCKET_NAME,
+            Key: key,
+            Body: file.buffer,
+            ContentType: file.mimetype,
+            ACL: 'public-read'
+        };
+
+        await s3.send(new PutObjectCommand(uploadParams));
+
+        const imageUrl = `https://${process.env.BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+
         await User.findByIdAndUpdate(
             userId,
-            { $push: { images: imagePath } },
+            { $push: { images: imageUrl } },
             { new: true }
         );
+
         res.status(200).json({
             success: true,
-            message: 'Image uploaded and saved',
-            imageUrl: imagePath,
+            message: 'Image uploaded to S3 and saved',
+            imageUrl,
         });
     } catch (error) {
         console.error('Upload error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
-}
+};
+
 
 
 const getImage = async (req, res) => {
