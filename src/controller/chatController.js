@@ -67,10 +67,10 @@ const sendMessage = async (req, res) => {
           message: chatInput 
       });
       await userMessage.save();
-
+      const inputChat = chatInput + (urlImage? `Đây là url ảnh mà bạn cần thực hiên + ${urlImage}` : ``)
       const response = await axios.post(BOT_WEBHOOK, {
           sessionId: workflowId,
-          chatInput: chatInput,
+          chatInput: inputChat,
       }, {
           headers: { 'Content-Type': 'application/json' }
       });
