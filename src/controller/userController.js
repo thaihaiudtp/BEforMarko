@@ -12,6 +12,8 @@ const s3 = new S3Client({
         secretAccessKey: process.env.AWS_SECRET_KEY,
     },
 });
+const redisClient = require('../redis');
+
 const uploadImage = async (req, res) => {
     try {
         const userId = req.user.id;
@@ -61,12 +63,22 @@ const uploadImage = async (req, res) => {
 const getImage = async (req, res) => {
     try {
         const { id } = req.user;
+        const cacheKey = `user:${id}:images`;
+        //Check Redis cache first
+        const cachedImages = await redisClient.get(cacheKey);
+        if (cachedImages){
+          return res.status(200).json({
+            success: true,
+            images: JSON.parse(cachedImages)
+          })
+        }
         const user = await User.findById(id).select("images"); 
 
         if (!user) {
             return res.status(404 ).json({ message: "User not found" });
         }
-
+        // Store images in Redis cache
+        await redisClient.setEx(cacheKey, 3600, JSON.stringify(user.images));
         return res.status(200).json({ 
           success: true,
           images: user.images 
