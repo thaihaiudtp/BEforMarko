@@ -3,14 +3,20 @@ const session = require('express-session');
 const cors = require('cors');
 const passport = require('./passport');
 const router = require('./router/index');
+const redisClient = require('./redis');
+const RedisStore = require('connect-redis')(session);
+
 require('dotenv').config();
 
 const connect = require('./db');
 const app = express();
+
+
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(session({
+  store: new RedisStore({client: redisClient}),
   secret: process.env.SECRET_KEY,  // Chuỗi bí mật để mã hóa session
   resave: false,              // Không lưu session nếu không thay đổi
   saveUninitialized: false,    // Không tạo session mới nếu không cần

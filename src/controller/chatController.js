@@ -4,7 +4,7 @@ require("dotenv").config();
 const BOT_WEBHOOK = process.env.BOT_WEBHOOK 
 const BOT_WEBHOOK_IMAGE = process.env.BOT_WEBHOOK_IMAGE
 const Workflow = require('../model/workflow');
-
+const {extractImageUrlFromChatInput} = require('../lib/stringProcess');
 const createWorkflow = async (req, res) => {
   try {
     const { name } = req.body;
@@ -67,7 +67,8 @@ const sendMessage = async (req, res) => {
           message: chatInput 
       });
       await userMessage.save();
-      const inputChat = chatInput + (urlImage? `Đây là url ảnh mà bạn cần thực hiên + ${urlImage}` : ``)
+      const inputChat = chatInput + (urlImage ? `Đây là url ảnh mà bạn cần thực hiện: ${urlImage}` : '');
+      console.log("inputChat:", inputChat); // Kiểm tra giá trị của inputChat
       const response = await axios.post(BOT_WEBHOOK, {
           sessionId: workflowId,
           chatInput: inputChat,
